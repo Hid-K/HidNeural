@@ -28,7 +28,7 @@ namespace NeuralNet
 
 		Inputs weights table are structured like:
 
-		 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 |. . . | WEIGHT_N |
+			 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 |. . . | WEIGHT_N |
 	___________________________________________. . . ____________
 	NEURON_0 |          |          |          |. . . |          |
 	___________________________________________      ____________
@@ -39,10 +39,10 @@ namespace NeuralNet
 	NEURON_3 |          |          |          |. . . |          |
 	___________________________________________      ____________
 	NEURON_4 |          |          |          |. . . |          |
-	.          .          .          . . . .           .
-	.          .          .          . . . .           .
-	.          .          .          . . . .           .
-	___________________________________________. . . ____________
+			 .          .          .          . . . .           .
+			 .          .          .          . . . .           .
+			 .          .          .          . . . .           .
+	___________________________________________ . . .____________
 	NEURON_N |          |          |          |. . . |          |
 
 	"void exec_data();" - executing every input by activation func and puts in into neuron output.
@@ -50,7 +50,7 @@ namespace NeuralNet
 	"void weights_correction(float k);" - correcting last layer weights for every neuron.
 	*/
 
-	template<uintmax_t neuron_count, float (*act_func)(float arg)>
+	template<float (*act_func)(float arg)>
 	class NeuralNetworkLayer
 	{
 	private:
@@ -58,18 +58,20 @@ namespace NeuralNet
 		float *  inputs_correction;
 		uintmax_t inputs_count;
 		uintmax_t neurons_count;
-
 		float * outputs;
 
 	public:
+		float * input_lay_error;
+
 		NeuralNetworkLayer(float * input, float *input_weights, uintmax_t input_count,
-						   float * output)
+						   float * output, uintmax_t neurons_count)
 		{
 			this->inputs = 				input;
 			this->inputs_correction = 	input_weights;
 			this->inputs_count = 		input_count;
 			this->outputs = 			output;
-			this->neurons_count	=		neuron_count;
+			this->neurons_count	=		neurons_count;
+			this->input_lay_error = new float[this->inputs_count];
 		};
 		~NeuralNetworkLayer(){};
 		
@@ -83,21 +85,34 @@ namespace NeuralNet
 					this->outputs[n] += this->inputs[i] * *(this->inputs_correction + n*this->inputs_count + i);
 				}
 				this->outputs[n] = act_func(this->outputs[n]);
-			}
+			};
 		};
 
-		void weights_correction(float k)
+		void weights_correction(float k, float * output_neuron_error)
 		{
 			for (uintmax_t i = 0; i < this->inputs_count; ++i)
 			{
 				for (uintmax_t n = 0; n < this->neurons_count; ++n)
 				{
 					*(this->inputs_correction + n*this->inputs_count + i) = 
-					*(this->inputs_correction + n*this->inputs_count + i) + k * this->outputs[n]
+					*(this->inputs_correction + n*this->inputs_count + i) + k * output_neuron_error[n]
 					* this->outputs[n] * (1-this->outputs[n]) * this->inputs[i];
 				}
 			}
 		}
+
+		void find_error(float * output_lay_error)
+		{
+			for (uintmax_t i = 0; i < this->inputs_count; ++i)
+			{
+				this->input_lay_error[i]=0;
+				for (int n = 0; n < this->neurons_count; ++n)
+				{
+					this->input_lay_error[i] = 
+					*(this->inputs_correction + n*this->inputs_count + i) * output_lay_error[i];
+				};
+			};
+		};
 	};
 
 	/*
@@ -153,6 +168,7 @@ namespace NeuralNet
 			output = act_func(output);
 		};
 	};
+
 };
 
 #endif
