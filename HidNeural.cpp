@@ -28,7 +28,7 @@ namespace NeuralNet
 
 		Inputs weights table are structured like:
 
-			 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 |. . . | WEIGHT_N |
+		 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 |. . . | WEIGHT_N |
 	___________________________________________. . . ____________
 	NEURON_0 |          |          |          |. . . |          |
 	___________________________________________      ____________
@@ -39,10 +39,10 @@ namespace NeuralNet
 	NEURON_3 |          |          |          |. . . |          |
 	___________________________________________      ____________
 	NEURON_4 |          |          |          |. . . |          |
-			 .          .          .          . . . .           .
-			 .          .          .          . . . .           .
-			 .          .          .          . . . .           .
-	___________________________________________ . . .____________
+	.          .          .          . . . .           .
+	.          .          .          . . . .           .
+	.          .          .          . . . .           .
+	___________________________________________. . . ____________
 	NEURON_N |          |          |          |. . . |          |
 
 	"void exec_data();" - executing every input by activation func and puts in into neuron output.
