@@ -4,5 +4,5 @@
 
 - [x] Make neurons layer class.
 - [ ] Make learn algorithm.
-- [ ] Make single neuron class.
+- [x] Make single neuron class.
 - [ ] Make GUI for neural net work visualising.
