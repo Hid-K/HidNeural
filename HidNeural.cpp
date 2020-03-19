@@ -28,26 +28,26 @@ namespace NeuralNet
 
 		Inputs weights table are structured like:
 
-			 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 |. . . | WEIGHT_N |
-	___________________________________________. . . ____________
-	NEURON_0 |          |          |          |. . . |          |
-	___________________________________________      ____________
-	NEURON_1 |          |          |          |. . . |          |
-	___________________________________________      ____________
-	NEURON_2 |          |          |          |. . . |          |
-	___________________________________________      ____________
-	NEURON_3 |          |          |          |. . . |          |
-	___________________________________________      ____________
-	NEURON_4 |          |          |          |. . . |          |
-			 .          .          .          . . . .           .
-			 .          .          .          . . . .           .
-			 .          .          .          . . . .           .
-	___________________________________________ . . .____________
-	NEURON_N |          |          |          |. . . |          |
+			 | WEIGHT_0 | WEIGHT_1 | WEIGHT_2 | . . . | WEIGHT_N |
+	___________________________________________ . . . ____________
+	NEURON_0 |          |          |          | . . . |          |
+	___________________________________________       ____________
+	NEURON_1 |          |          |          | . . . |          |
+	___________________________________________       ____________
+	NEURON_2 |          |          |          | . . . |          |
+	___________________________________________       ____________
+	NEURON_3 |          |          |          | . . . |          |
+	___________________________________________       ____________
+	NEURON_4 |          |          |          | . . . |          |
+			 .          .          .          . . . . .          .
+			 .          .          .          . . . . .          .
+			 .          .          .          . . . . .          .
+	___________________________________________ . . . ____________
+	NEURON_N |          |          |          | . . . |          |
+
+	weights_arr[neuron][weight];
 
 	"void exec_data();" - executing every input by activation func and puts in into neuron output.
-
-	"void weights_correction(float k);" - correcting last layer weights for every neuron.
 	*/
 
 	template<float (*act_func)(float arg)>
@@ -73,7 +73,13 @@ namespace NeuralNet
 			this->neurons_count	=		neurons_count;
 			this->input_lay_error = new float[this->inputs_count];
 		};
-		~NeuralNetworkLayer(){};
+		~NeuralNetworkLayer()
+		{
+			if(this->input_lay_error)
+			{
+				delete(this->input_lay_error);
+			};
+		};
 		
 		void exec_data()
 		{
@@ -87,32 +93,45 @@ namespace NeuralNet
 				this->outputs[n] = act_func(this->outputs[n]);
 			};
 		};
+	};
 
-		void weights_correction(float k, float * output_neuron_error)
+	void find_out_error(float * idl, float * error_arr, float * res, uintmax_t outputs_count)
+	{
+		for (uintmax_t o = 0; o < outputs_count; ++o)
 		{
-			for (uintmax_t i = 0; i < this->inputs_count; ++i)
-			{
-				for (uintmax_t n = 0; n < this->neurons_count; ++n)
-				{
-					*(this->inputs_correction + n*this->inputs_count + i) = 
-					*(this->inputs_correction + n*this->inputs_count + i) + k * output_neuron_error[n]
-					* this->outputs[n] * (1-this->outputs[n]) * this->inputs[i];
-				}
-			}
-		}
+			error_arr[o] = idl[o] - res[o];
+		};
+	};
 
-		void find_error(float * output_lay_error)
+	void find_error(float * input_lay_error, float * output_lay_error, float * input_weights,
+					uintmax_t ic, 									   uintmax_t nc)
+	{
+		for (uintmax_t i = 0; i < ic; ++i)
 		{
-			for (uintmax_t i = 0; i < this->inputs_count; ++i)
+			input_lay_error[i] = 0;
+			for (uintmax_t n = 0; n < nc; ++n)
 			{
-				this->input_lay_error[i]=0;
-				for (int n = 0; n < this->neurons_count; ++n)
-				{
-					this->input_lay_error[i] = 
-					*(this->inputs_correction + n*this->inputs_count + i) * output_lay_error[i];
-				};
+				input_lay_error[i] +=
+				*(input_weights + n*ic + i) * output_lay_error[i];
 			};
 		};
+	};
+
+	void weights_correction(float * input_lay_error, float * output_lay_error, float * input_weights,
+							float * input,			 float * output,
+							uintmax_t ic, 			 uintmax_t oc,	  		   float k)
+	{
+		for (uintmax_t i = 0; i < ic; ++i)
+		{
+			for (uintmax_t n = 0; n < oc; ++n)
+			{
+				*(input_weights + n*ic + i) = 
+				*(input_weights + n*ic + i) + k * output_lay_error[n]
+				* input[i] * output[n] * (1-output[n]);
+				// std::cout<<*(weights + n*ic + i);
+			};
+			// std::cout<<std::endl;
+		}
 	};
 
 	/*
