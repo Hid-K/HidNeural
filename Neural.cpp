@@ -6,7 +6,7 @@ float NNinput[9] =				  		  {0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F};
 
-float NNinput_correction[4][9]/* = {{1.0f, 1.0f, 1.0f,
+float NNinput_correction[4][9]/* = {				  {1.0f, 1.0f, 1.0f,
 								   1.0f, 1.0f, 1.0f,
 								   1.0f, 1.0f, 1.0f},
 								  
@@ -35,7 +35,7 @@ float NNlay1_weights[2][3];
 float NNoutput[2] = {0.0F, 0.0F};		//1 - vertical
 										//2 - horizontal
 
-float ideat_out[14][2] {{0.0F, 0.0F},				//0 0
+float ideat_out[14][2] {			{0.0F, 0.0F},				//0 0
 
 					    	{1.0F, 0.0F},				//1 0
 
