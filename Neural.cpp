@@ -2,7 +2,7 @@
 #include "HidNeural.cpp"
 #include <cstdlib>
 
-float NNinput[9] =				  {0.0F, 0.0F, 0.0F,
+float NNinput[9] =				  		  {0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F};
 
@@ -37,11 +37,11 @@ float NNoutput[2] = {0.0F, 0.0F};		//1 - vertical
 
 float ideat_out[14][2] {{0.0F, 0.0F},				//0 0
 
-					    {1.0F, 0.0F},				//1 0
+					    	{1.0F, 0.0F},				//1 0
 
-					    {0.0F, 1.0F},				//0 1
+					    	{0.0F, 1.0F},				//0 1
 					    
-					    {0.0F, 1.0F},				//0 1
+					    	{0.0F, 1.0F},				//0 1
 
 						{0.0F, 1.0F},				//0 1
 						
@@ -63,7 +63,7 @@ float ideat_out[14][2] {{0.0F, 0.0F},				//0 0
 
 						{1.0F, 1.0F}};				//1 1
 
-float input_options[14][9] {{0.0f, 0.0f, 0.0f,
+float input_options[14][9] {				{0.0f, 0.0f, 0.0f,
 							 0.0f, 0.0f, 0.0f,				//0 0
 							 0.0f, 0.0f, 0.0f},
 							
@@ -159,7 +159,7 @@ int main(int argc, char const *argv[])
 				continue;
 			}else
 			{
-				float input_error[9]{0.0f, 0.0f, 0.0f,
+				float input_error[9]			{0.0f, 0.0f, 0.0f,
 									 0.0f, 0.0f, 0.0f,
 									 0.0f, 0.0f, 0.0f};
 
@@ -177,12 +177,12 @@ int main(int argc, char const *argv[])
 				NNlay1.weights_correction(0.1, output_error);
 			};
 		};
-		if (tests_result[0] 	&& tests_result[1] 		&&
+		if (	tests_result[0] 	&& tests_result[1] 		&&
 		 	tests_result[2] 	&& tests_result[3] 		&&
 		 	tests_result[4] 	&& tests_result[5] 		&& 
 		 	tests_result[6] 	&& tests_result[7] 		&& 
 		 	tests_result[8] 	&& tests_result[9] 		&& 
-		 	tests_result[10] 	&& tests_result[11] 	&& 
+		 	tests_result[10] 	&& tests_result[11] 		&& 
 			tests_result[12] 	&& tests_result[13])
 		{
 			break;
