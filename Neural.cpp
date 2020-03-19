@@ -1,12 +1,13 @@
 #include <iostream>
 #include "HidNeural.cpp"
 #include <cstdlib>
+#include <ctime>
 
-float NNinput[9] =				  		  {0.0F, 0.0F, 0.0F,
+float NNinput[9] =				  {0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F,
 								   0.0F, 0.0F, 0.0F};
 
-float NNinput_correction[4][9]/* = {				  {1.0f, 1.0f, 1.0f,
+float NNinput_correction[4][9]/* = {{1.0f, 1.0f, 1.0f,
 								   1.0f, 1.0f, 1.0f,
 								   1.0f, 1.0f, 1.0f},
 								  
@@ -35,13 +36,13 @@ float NNlay1_weights[2][3];
 float NNoutput[2] = {0.0F, 0.0F};		//1 - vertical
 										//2 - horizontal
 
-float ideat_out[14][2] {			{0.0F, 0.0F},				//0 0
+float ideat_out[14][2] {{0.0F, 0.0F},				//0 0
 
-					    	{1.0F, 0.0F},				//1 0
+					    {1.0F, 0.0F},				//1 0
 
-					    	{0.0F, 1.0F},				//0 1
+					    {0.0F, 1.0F},				//0 1
 					    
-					    	{0.0F, 1.0F},				//0 1
+					    {0.0F, 1.0F},				//0 1
 
 						{0.0F, 1.0F},				//0 1
 						
@@ -63,7 +64,7 @@ float ideat_out[14][2] {			{0.0F, 0.0F},				//0 0
 
 						{1.0F, 1.0F}};				//1 1
 
-float input_options[14][9] {				{0.0f, 0.0f, 0.0f,
+float input_options[14][9] {{0.0f, 0.0f, 0.0f,
 							 0.0f, 0.0f, 0.0f,				//0 0
 							 0.0f, 0.0f, 0.0f},
 							
@@ -127,10 +128,40 @@ NeuralNet::NeuralNetworkLayer<NeuralNet::sygmoid> NNout(NNlay1_out, (float*)NNla
 
 int main(int argc, char const *argv[])
 {
-	float test0 = 0.0f;
-	float test1 = 0.0f;
-	float test2 = 0.0f;
-	float test3 = 0.0f;
+	// std::srand(unsigned(std::time(0)));
+	std::srand(12);
+
+	for (uintmax_t x = 0; x < 3; ++x)
+	{
+		for (int y = 0; y < 4; ++y)
+		{
+			NNlay0_weights[x][y] = std::rand();
+			std::cout<<NNlay0_weights[x][y]<<" ";
+		};
+	};
+
+	std::cout<<'\n';
+
+	for (uintmax_t x = 0; x < 4; ++x)
+	{
+		for (int y = 0; y < 9; ++y)
+		{
+			NNinput_correction[x][y] = std::rand();
+			std::cout<<NNinput_correction[x][y]<<" ";
+		};
+	};
+
+	std::cout<<'\n';
+
+	for (uintmax_t x = 0; x < 2; ++x)
+	{
+		for (int y = 0; y < 3; ++y)
+		{
+			NNlay1_weights[x][y] = std::rand();
+			std::cout<<NNlay1_weights[x][y]<<" ";
+		};
+	};
+
 	if (argc > 0)
 	{
 		LEARN_CO = (float)argv[0][0];
@@ -159,30 +190,36 @@ int main(int argc, char const *argv[])
 				continue;
 			}else
 			{
-				float input_error[9]			{0.0f, 0.0f, 0.0f,
+				float input_error[9]{0.0f, 0.0f, 0.0f,
 									 0.0f, 0.0f, 0.0f,
 									 0.0f, 0.0f, 0.0f};
 
-				float output_error[2]{ideat_out[v][0] - NNoutput[0], ideat_out[v][0] - NNoutput[0]};
+				float output_error[2]/*{ideat_out[v][0] - NNoutput[0], ideat_out[v][0] - NNoutput[0]}*/;
 
 				float NNlay1_error[3]{0.0, 0.0, 0.0};
 
 				float NNlay0_error[4]{0.0, 0.0, 0.0, 0.0};
 
-				NNlay1.find_error(output_error);
 
-				NNlay0.find_error(NNlay1_error);
+				NeuralNet::find_out_error(ideat_out[v], output_error, NNoutput, 2);	
 
-				NNlay0.weights_correction(0.1, NNlay1_error);
-				NNlay1.weights_correction(0.1, output_error);
+				NeuralNet::find_error(NNlay0_error, NNlay1_error, (float*)NNlay1_weights, 4, 3);		//Get error for lay1.
+			
+				NeuralNet::find_error(input_error, NNlay1_error, (float*)NNinput_correction, 9, 4);		//Get error for lay1.
+
+				NeuralNet::weights_correction(NNlay0_error, NNlay1_error, (float*)NNlay1_weights, 
+											  NNlay1_out, NNlay0_out, 4, 3, 0.5);
+			
+				NeuralNet::weights_correction(input_error, NNlay1_error, (float*)NNinput_correction, 
+											  NNinput, NNlay1_out, 9, 4, 0.5);
 			};
 		};
-		if (	tests_result[0] 	&& tests_result[1] 		&&
+		if (tests_result[0] 	&& tests_result[1] 		&&
 		 	tests_result[2] 	&& tests_result[3] 		&&
 		 	tests_result[4] 	&& tests_result[5] 		&& 
 		 	tests_result[6] 	&& tests_result[7] 		&& 
 		 	tests_result[8] 	&& tests_result[9] 		&& 
-		 	tests_result[10] 	&& tests_result[11] 		&& 
+		 	tests_result[10] 	&& tests_result[11] 	&& 
 			tests_result[12] 	&& tests_result[13])
 		{
 			break;
