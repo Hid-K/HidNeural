@@ -4,11 +4,19 @@
 #include <iostream>
 #include <math.h>
 
-float LEARN_CO = 0.0f;
-
 namespace NeuralNet
 {
 	const float e = 2.718281828459045F;		//Eiler nubber constant.
+
+	/*
+		Neurons layer output structure.
+	*/
+
+	struct NeurOut
+	{
+		float * outputs_ptr;
+		uintmax_t outputs_count;
+	};
 
 	/*
 		Default activation function (sygmoid).
@@ -16,15 +24,14 @@ namespace NeuralNet
 
 	float sygmoid( float arg )
 	{
-		return 1/(1+pow(e, arg));
+		return 1/(1+pow(e, -arg));
 	};
 
 	/*
 		NN layer class.
 
-		Gets neurons count and activation function as a template.
-		Gets pointer to inputs array, pointer to weights, count of inputs, pointer to output array
-		as constructor args.
+		Gets activation function as a template arg.
+		Gets (NeurOut) inputs, weights table and neurons count as constructor args.
 
 		Inputs weights table are structured like:
 
@@ -48,86 +55,115 @@ namespace NeuralNet
 	weights_arr[neuron][weight];
 
 	"void exec_data();" - executing every input by activation func and puts in into neuron output.
+	
+	"NeurOut getOutputs()" - returns (NeurOut) structure for next layer connecting.
+	
+	"void setInput(NeurOut in)" - .
+
+	"void setWeightsTable(float * table)" - .
+
+	"void setOutputs(NeurOut ou)" - .
 	*/
 
 	template<float (*act_func)(float arg)>
 	class NeuralNetworkLayer
 	{
 	private:
-		float *  inputs;
-		float *  inputs_correction;
-		uintmax_t inputs_count;
-		uintmax_t neurons_count;
-		float * outputs;
+		NeurOut input;
+		NeurOut output;
+		float * input_weights;
 
 	public:
-		float * input_lay_error;
 
-		NeuralNetworkLayer(float * input, float *input_weights, uintmax_t input_count,
-						   float * output, uintmax_t neurons_count)
+		NeuralNetworkLayer(NeurOut inputs, float * weights_table, uintmax_t neurons_count)
 		{
-			this->inputs = 				input;
-			this->inputs_correction = 	input_weights;
-			this->inputs_count = 		input_count;
-			this->outputs = 			output;
-			this->neurons_count	=		neurons_count;
-			this->input_lay_error = new float[this->inputs_count];
+			this->input.outputs_ptr = inputs.outputs_ptr;
+			this->input.outputs_count = inputs.outputs_count;
+
+			this->input_weights = weights_table;
+
+			this->output.outputs_ptr = new float[neurons_count];
+			this->output.outputs_count = neurons_count;
 		};
 		~NeuralNetworkLayer()
 		{
-			if(this->input_lay_error)
-			{
-				delete(this->input_lay_error);
-			};
+			if (*this->output.outputs_ptr) delete(this->output.outputs_ptr);
 		};
-		
+
+		NeurOut getOutputs()
+		{
+			return output;
+		};
+
+		void setOutputs(NeurOut ou)
+		{
+			if (ou.outputs_count < this->output.outputs_count)
+			{
+				std::cout<<this<<":WARNING! Too small outputs array given!"<<std::endl;
+				return;
+			};
+
+			this->output.outputs_ptr = ou.outputs_ptr;
+		};
+
+		void setInput(NeurOut in)
+		{
+			this->input.outputs_ptr = in.outputs_ptr;
+			this->input.outputs_count = in.outputs_count;
+		};
+
+		void setWeightsTable(float * table)
+		{
+			this->input_weights = table;
+		};
+
 		void exec_data()
 		{
-			for (uintmax_t n = 0; n < this->neurons_count; ++n)
+			for (uintmax_t n = 0; n < this->output.outputs_count; ++n)
 			{
-				this->outputs[n] = 0;
-				for (uintmax_t i = 0; i < this->inputs_count; ++i)
+				for (uintmax_t i = 0; i < this->input.outputs_count; ++i)
 				{
-					this->outputs[n] += this->inputs[i] * *(this->inputs_correction + n*this->inputs_count + i);
+					this->output.outputs_ptr[n] = this->input.outputs_ptr[i] * 
+					*(this->input_weights + n*this->input.outputs_count + i);
 				}
-				this->outputs[n] = act_func(this->outputs[n]);
+				this->output.outputs_ptr[n] = act_func(this->output.outputs_ptr[n]);
 			};
 		};
 	};
 
-	void find_out_error(float * idl, float * error_arr, float * res, uintmax_t outputs_count)
+	void find_out_error(float * idl, float * error_arr, NeurOut res)
 	{
-		for (uintmax_t o = 0; o < outputs_count; ++o)
+		for (uintmax_t o = 0; o < res.outputs_count; ++o)
 		{
-			error_arr[o] = idl[o] - res[o];
+			error_arr[o] = idl[o] - res.outputs_ptr[o];
 		};
 	};
 
-	void find_error(float * input_lay_error, float * output_lay_error, float * input_weights,
-					uintmax_t ic, 									   uintmax_t nc)
+	void find_error(NeurOut input, 				NeurOut output, 
+					
+					float * input_lay_error, 	float * output_lay_error,
+
+					float * input_weights)
 	{
-		for (uintmax_t i = 0; i < ic; ++i)
+		for (uintmax_t i = 0; i < input.outputs_count; ++i)
 		{
-			input_lay_error[i] = 0;
-			for (uintmax_t n = 0; n < nc; ++n)
+			for (uintmax_t n = 0; n < output.outputs_count; ++n)
 			{
 				input_lay_error[i] +=
-				*(input_weights + n*ic + i) * output_lay_error[i];
+				*(input_weights + n*input.outputs_count + i) * output_lay_error[i];
 			};
 		};
 	};
 
 	void weights_correction(float * input_lay_error, float * output_lay_error, float * input_weights,
-							float * input,			 float * output,
-							uintmax_t ic, 			 uintmax_t oc,	  		   float k)
+							NeurOut input, NeurOut output, float k)
 	{
-		for (uintmax_t i = 0; i < ic; ++i)
+		for (uintmax_t i = 0; i < input.outputs_count; ++i)
 		{
-			for (uintmax_t n = 0; n < oc; ++n)
+			for (uintmax_t n = 0; n < output.outputs_count; ++n)
 			{
-				*(input_weights + n*ic + i) = 
-				*(input_weights + n*ic + i) + k * output_lay_error[n]
-				* input[i] * output[n] * (1-output[n]);
+				*(input_weights + n*input.outputs_count + i) += k * output_lay_error[n]
+				* input.outputs_ptr[i] * output.outputs_ptr[n] * (1-output.outputs_ptr[n]);
 				// std::cout<<*(weights + n*ic + i);
 			};
 			// std::cout<<std::endl;
