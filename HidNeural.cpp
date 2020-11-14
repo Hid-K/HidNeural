@@ -4,7 +4,7 @@
 #include <iostream>
 #include <math.h>
 
-namespace NeuralNet
+namespace HidNeural
 {
 	const float e = 2.718281828459045F;		//Eiler nubber constant.
 

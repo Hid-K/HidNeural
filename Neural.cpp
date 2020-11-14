@@ -118,13 +118,13 @@ float input_options[14][9] {{0.0f, 0.0f, 0.0f,
 							 0.0f, 1.0f, 0.0f,				//1 1
 							 1.0f, 1.0f, 1.0f}};
 
-NeuralNet::NeuralNetworkLayer<NeuralNet::sygmoid> NNlay0({NNinput, 9}, 
+HidNeural::NeuralNetworkLayer<HidNeural::sygmoid> NNlay0({NNinput, 9}, 
 														 (float*)NNinput_correction, 4);
 
-NeuralNet::NeuralNetworkLayer<NeuralNet::sygmoid> NNlay1(NNlay0.getOutputs(),
+HidNeural::NeuralNetworkLayer<HidNeural::sygmoid> NNlay1(NNlay0.getOutputs(),
 														(float*)NNlay0_weights, 3);
 
-NeuralNet::NeuralNetworkLayer<NeuralNet::sygmoid> NNout(NNlay1.getOutputs(),
+HidNeural::NeuralNetworkLayer<HidNeural::sygmoid> NNout(NNlay1.getOutputs(),
 													   (float*)NNlay1_weights, 2);
 
 int main(int argc, char const *argv[])
@@ -210,12 +210,12 @@ int main(int argc, char const *argv[])
 				static float NNlay0_error[4]{0.0, 0.0, 0.0, 0.0};
 
 
-				NeuralNet::find_out_error(ideat_out[v], output_error, NNout.getOutputs());	
+				HidNeural::find_out_error(ideat_out[v], output_error, NNout.getOutputs());	
 
-				NeuralNet::find_error(NNlay0.getOutputs(), {NNinput, 9}, input_error, NNlay1_error, 
+				HidNeural::find_error(NNlay0.getOutputs(), {NNinput, 9}, input_error, NNlay1_error, 
 									 (float*)NNlay1_weights); //Get error for lay1.
 
-				NeuralNet::find_error({NNinput, 9}, NNlay1.getOutputs(), input_error, NNlay1_error,
+				HidNeural::find_error({NNinput, 9}, NNlay1.getOutputs(), input_error, NNlay1_error,
 									  (float*)NNinput_correction); //Get error for lay0.
 
 
@@ -256,10 +256,10 @@ int main(int argc, char const *argv[])
 
 				std::cout<<"\n\n\n\n";
 
-				NeuralNet::weights_correction(input_error, NNlay1_error, (float*)NNinput_correction, 
+				HidNeural::weights_correction(input_error, NNlay1_error, (float*)NNinput_correction, 
 											  {NNinput, 9}, NNlay1.getOutputs(), LEARN_CO);
 
-				NeuralNet::weights_correction(NNlay0_error, NNlay1_error, (float*)NNlay0_weights, 
+				HidNeural::weights_correction(NNlay0_error, NNlay1_error, (float*)NNlay0_weights, 
 											  NNlay1.getOutputs(), NNlay0.getOutputs(), LEARN_CO);
 
 			
