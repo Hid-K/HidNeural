@@ -1,6 +1,6 @@
 #include "HidNeural.hpp"
 
-HidNeural::HidNeural
+HidNeuralNetwork::HidNeuralNetwork
         (
             const size_t * _layersSizes,
             size_t _inputLayerSize,
@@ -57,7 +57,7 @@ HidNeural::HidNeural
        this->layersOutputs[layer] = new double [this->layersSizesArr[layer]];
    };
 };
-HidNeural::~HidNeural()
+HidNeuralNetwork::~HidNeuralNetwork()
 {
     for(size_t layer = 0; layer < layersCount; ++layer)
    {
@@ -79,19 +79,19 @@ HidNeural::~HidNeural()
 };
 
 double *
-HidNeural::getOutput()
+HidNeuralNetwork::getOutput()
 {
     return this->layersOutputs[layersCount - 1];
 };
 
 double *
-HidNeural::getIntput()
+HidNeuralNetwork::getIntput()
 {
     return this->inputLayer;
 };
 
 char
-HidNeural::getWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
+HidNeuralNetwork::getWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
 {
     if(layer == 0 && neuron < this->layersSizesArr[0] && w < this->inputLayerSize)
     {
@@ -115,7 +115,7 @@ HidNeural::getWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
 };
 
 char
-HidNeural::setWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
+HidNeuralNetwork::setWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
 {
     if(layer == 0 && neuron < this->layersSizesArr[0] && w < this->inputLayerSize)
     {
@@ -139,7 +139,7 @@ HidNeural::setWeight(size_t layer, size_t neuron, size_t w, double & weight_var)
 };
 
 char
-HidNeural::copy(HidNeural * parent_network)
+HidNeuralNetwork::copy(HidNeuralNetwork * parent_network)
 {
     for(size_t layer = 1; layer < this->layersCount; ++layer)
     {
@@ -160,7 +160,7 @@ HidNeural::copy(HidNeural * parent_network)
 };
 
 void
-HidNeural::executeInput()
+HidNeuralNetwork::executeInput()
 {
     for(size_t neuron = 0; neuron < this->layersSizesArr[0]; ++neuron)
     {

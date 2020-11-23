@@ -40,7 +40,7 @@ int main()
         lay2funcs
     };
 
-    HidNeural * network = new HidNeural(layersSizes, 2, 3, funcs);
+    HidNeuralNetwork * network = new HidNeuralNetwork(layersSizes, 2, 3, funcs);
 
     network->getIntput()[0] = 1234729346.23468127634;
     network->getIntput()[1] = 125987498723.2347243;

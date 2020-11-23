@@ -6,7 +6,7 @@
 #include <ctime>
 #include <iostream>
 
-class HidNeural
+class HidNeuralNetwork
 {
 private:
     double *** weightsTables;
@@ -19,14 +19,14 @@ private:
     size_t layersCount;
     double (** * neuronsActivationFunctions)(double);
 public:
-    HidNeural
+    HidNeuralNetwork
             (
               const size_t * _layersSizes,
               size_t _inputLayerSize,
               size_t _layerCount,
               double (** * actFunctions)(double)
             );
-    ~HidNeural();
+    ~HidNeuralNetwork();
 
     double * getOutput();
     double * getIntput();
@@ -36,7 +36,7 @@ public:
     char getWeight(size_t layer, size_t neuron, size_t w, double & weight_var);
     char setWeight(size_t layer, size_t neuron, size_t w, double & weight_var);
 
-    char copy(HidNeural *);
+    char copy(HidNeuralNetwork *);
 };
 
 #endif
