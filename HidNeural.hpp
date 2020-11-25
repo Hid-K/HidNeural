@@ -37,6 +37,10 @@ public:
     char setWeight(size_t layer, size_t neuron, size_t w, double & weight_var);
 
     char copy(HidNeuralNetwork *);
+
+    char merge(HidNeuralNetwork *);
+
+    void mutate(size_t);
 };
 
 #endif

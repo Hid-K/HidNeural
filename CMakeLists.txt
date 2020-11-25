@@ -9,7 +9,8 @@ set(DCMAKE_BUILD_TYPE, Debug)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
-add_library(HidNeural STATIC ./HidNeural.cpp)
+add_library(HidNeural STATIC ./HidNeural.cpp
+                             ./HidNeuralNetworkLearner.cpp)
 
 add_executable(${PROJECT_NAME} main.cpp)
 

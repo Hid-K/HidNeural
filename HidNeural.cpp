@@ -13,7 +13,6 @@ HidNeuralNetwork::HidNeuralNetwork
         layersSizesArr(_layersSizes),
         inputLayerSize(_inputLayerSize)
 {
-    srand(time(nullptr));
     this->inputLayer = new double [inputLayerSize];
     /*
         Weights table init.
@@ -165,11 +164,12 @@ HidNeuralNetwork::executeInput()
     for(size_t neuron = 0; neuron < this->layersSizesArr[0]; ++neuron)
     {
         double inputsSumm = 0.0;
+        double weight = 0.0;
         for(size_t input = 0; input < inputLayerSize; ++input)
         {
+            this->getWeight(0, neuron, input, weight);
             inputsSumm +=
-                this->inputLayer[input] *
-                this->weightsTables[0][neuron][input];
+                this->inputLayer[input] * weight;
             std::cout<<this->weightsTables[0][neuron][input]<<std::endl;
         };
         std::cout<<std::endl<<inputsSumm<<std::endl;
@@ -184,11 +184,13 @@ HidNeuralNetwork::executeInput()
         for(size_t neuron = 0; neuron < this->layersSizesArr[layer]; ++neuron)
         {
             double inputsSumm = 0.0;
+            double weight = 0.0;
             for(size_t input = 0; input < this->layersSizesArr[layer - 1]; ++input)
             {
+                this->getWeight(layer, neuron, input, weight);
                 inputsSumm +=
                     this->layersOutputs[layer-1][input] *
-                    this->weightsTables[layer][neuron][input];
+                    weight;
                 
                 std::cout<<this->weightsTables[layer][neuron][input]<<std::endl;
             };
@@ -198,5 +200,50 @@ HidNeuralNetwork::executeInput()
             std::cout<<std::endl;
         };
         std::cout<<std::endl<<std::endl;
+    };
+};
+
+char
+HidNeuralNetwork::merge(HidNeuralNetwork * mergable_network)
+{
+    for(size_t layer = 1; layer < this->layersCount; ++layer)
+    {
+        for(size_t neuron = 0; neuron < this->layersSizesArr[layer]; ++neuron)
+        {
+            double weight = 0.0;
+            for(size_t input = 0; input < this->layersSizesArr[layer - 1]; ++input)
+            {
+                if(rand() % 2 == 0)
+                if( this->getWeight(layer, neuron, input, weight) < 0 ||
+                    mergable_network->setWeight(layer, neuron, input, weight) < 0)
+                    goto ERROREXIT;
+            };
+        };
+    };
+    return 0;
+    ERROREXIT:
+    return -1;
+};
+
+void
+HidNeuralNetwork::mutate(size_t seed)
+{
+    srand(time(nullptr));
+    for(size_t layer = 1; layer < this->layersCount; ++layer)
+    {
+        for(size_t neuron = 0; neuron < this->layersSizesArr[layer]; ++neuron)
+        {
+            double weight = 0.0;
+            for(size_t input = 0; input < this->layersSizesArr[layer - 1]; ++input)
+            {
+                this->setWeight(layer, neuron, input, weight);
+                weight = (seed - weight) * ((int)sqrt(rand()) + (int)sin( cos( tan( (long long)(this) ) ) ) ) * time(nullptr);
+                if(rand() % 9 == 0)
+                {
+                    this->setWeight(layer, neuron, input, weight);
+                };
+                seed *= rand();
+            };
+        };
     };
 };
