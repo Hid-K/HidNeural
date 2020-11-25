@@ -1,5 +1,5 @@
-#include "HidNeural.hpp"
-#include "HidNeuralNetworkLearner.hpp"
+#include "../HidNeural/HidNeural.hpp"
+#include "../HidNeural/HidNeuralNetworkLearner.hpp"
 #include <iostream>
 #include <math.h>
 
